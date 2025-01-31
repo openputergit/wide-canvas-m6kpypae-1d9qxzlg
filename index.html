@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceramic Industry Cost Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .calculator-body {
+            background: linear-gradient(145deg, #e6e6e6, #ffffff);
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            border-radius: 30px;
+        }
+        .neumorphic-input {
+            background: #f0f0f0;
+            box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+            border-radius: 10px;
+        }
+        .neumorphic-button {
+            background: linear-gradient(145deg, #f0f0f0, #cacaca);
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            transition: all 0.3s ease;
+        }
+        .neumorphic-button:active {
+            background: linear-gradient(145deg, #cacaca, #f0f0f0);
+            box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 font-['Inter']">
+    <div class="calculator-body max-w-4xl mx-auto p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Ceramic Industry Cost Calculator</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Box Dimensions -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">Box Dimensions</h2>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Length (cm)</label>
+                    <input type="number" id="length" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Width (cm)</label>
+                    <input type="number" id="width" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Height (cm)</label>
+                    <input type="number" id="height" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+            </div>
+
+            <!-- Freight Costs -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">Freight Costs</h2>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Local Freight (USD)</label>
+                    <input type="number" id="localFreight" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Sea Freight (USD)</label>
+                    <input type="number" id="seaFreight" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Destination Freight (USD)</label>
+                    <input type="number" id="destFreight" class="neumorphic-input w-full p-3 outline-none" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Currency Conversion -->
+        <div class="mt-6 space-y-4">
+            <h2 class="text-xl font-semibold text-gray-700">Currency Conversion</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">USD Rate</label>
+                    <input type="number" id="usdRate" class="neumorphic-input w-full p-3 outline-none" value="1" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">AED Rate</label>
+                    <input type="number" id="aedRate" class="neumorphic-input w-full p-3 outline-none" value="3.67" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-600">Dirhams Rate</label>
+                    <input type="number" id="dirhamRate" class="neumorphic-input w-full p-3 outline-none" value="3.67" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="mt-8 text-center">
+            <button onclick="calculateCosts()" class="neumorphic-button px-8 py-3 text-lg font-semibold text-gray-700 rounded-lg">
+                Calculate Landing Cost
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="mt-8 p-6 neumorphic-input space-y-4">
+            <h3 class="text-xl font-semibold text-gray-700">Results</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-sm text-gray-600">USD Cost:</p>
+                    <p id="usdCost" class="text-lg font-semibold">$0.00</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">AED Cost:</p>
+                    <p id="aedCost" class="text-lg font-semibold">AED 0.00</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Dirhams Cost:</p>
+                    <p id="dirhamCost" class="text-lg font-semibold">د.إ 0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateCosts() {
+            // Get box dimensions
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+
+            // Get freight costs
+            const localFreight = parseFloat(document.getElementById('localFreight').value) || 0;
+            const seaFreight = parseFloat(document.getElementById('seaFreight').value) || 0;
+            const destFreight = parseFloat(document.getElementById('destFreight').value) || 0;
+
+            // Get conversion rates
+            const usdRate = parseFloat(document.getElementById('usdRate').value) || 1;
+            const aedRate = parseFloat(document.getElementById('aedRate').value) || 3.67;
+            const dirhamRate = parseFloat(document.getElementById('dirhamRate').value) || 3.67;
+
+            // Calculate volume and base cost
+            const volume = (length * width * height) / 1000000; // Convert to cubic meters
+            const totalFreight = localFreight + seaFreight + destFreight;
+            const baseCost = totalFreight * volume;
+
+            // Calculate costs in different currencies
+            const usdCost = baseCost * usdRate;
+            const aedCost = baseCost * aedRate;
+            const dirhamCost = baseCost * dirhamRate;
+
+            // Update results
+            document.getElementById('usdCost').textContent = `$${usdCost.toFixed(2)}`;
+            document.getElementById('aedCost').textContent = `AED ${aedCost.toFixed(2)}`;
+            document.getElementById('dirhamCost').textContent = `د.إ ${dirhamCost.toFixed(2)}`;
+
+            // Add animation effect
+            const results = document.getElementById('results');
+            results.style.transition = 'all 0.3s ease';
+            results.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                results.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        // Add input validation
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+            });
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
